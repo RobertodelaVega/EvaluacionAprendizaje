@@ -1,0 +1,427 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard | Análisis de Competencias Educativas</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js" id="MathJax-script" async></script>
+    <style>
+        :root {
+            --sidebar-width: 260px;
+            --bg-color: #f1f3f4;
+            --sidebar-bg: #ffffff;
+            --card-bg: #ffffff;
+            --accent-color: #1a73e8;
+            --text-main: #202124;
+            --text-secondary: #5f6368;
+            --border-color: #dadce0;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-color);
+            margin: 0;
+            display: flex;
+        }
+
+        /* Sidebar */
+        nav.sidebar {
+            width: var(--sidebar-width);
+            background: var(--sidebar-bg);
+            border-right: 1px solid var(--border-color);
+            height: 100vh;
+            position: fixed;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .sidebar-header { 
+            padding: 24px; 
+            font-weight: 700; 
+            color: var(--accent-color); 
+            border-bottom: 1px solid var(--border-color); 
+        }
+        
+        .sidebar-menu {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .menu-item {
+            padding: 12px 24px;
+            color: var(--text-main);
+            text-decoration: none;
+            font-size: 14px;
+            display: block;
+            transition: all 0.2s ease;
+        }
+
+        .menu-item:hover {
+            background: #f5f5f5;
+        }
+
+        .menu-item.active { 
+            background: #e8f0fe; 
+            color: var(--accent-color); 
+            border-right: 4px solid var(--accent-color); 
+        }
+
+        /* Main Content */
+        main.content {
+            margin-left: var(--sidebar-width);
+            flex-grow: 1;
+            padding: 40px;
+            max-width: 1300px;
+        }
+
+        /* SECCIÓN DE IMÁGENES */
+        .imagenes-paralelas {
+            display: flex;
+            gap: 30px;
+            margin: 32px 0 40px 0;
+            flex-wrap: wrap;
+        }
+
+        .imagen-item {
+            flex: 1;
+            min-width: 280px;
+        }
+
+        .imagen-item img {
+            width: 100%;
+            height: auto;
+            min-height: 250px;
+            border-radius: 16px;
+            border: 1px solid var(--border-color);
+            background: #FFFFFF; /* Color de fondo si no carga */
+            box-shadow: 0 4px 12px rgba(255, 255, 255, 1);
+            display: block;
+            object-fit: cover;
+            transition: transform 0.25s ease;
+        }
+
+        .imagen-item img:hover {
+            transform: translateY(-5px);
+        }
+
+        /* Dashboard Grid */
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 24px;
+        }
+
+        .card {
+            background: var(--card-bg);
+            border-radius: 12px;
+            border: 1px solid var(--border-color);
+            padding: 20px;
+            box-shadow: 0 1px 3px rgba(255, 255, 255, 1);
+        }
+
+        .full-width { grid-column: 1 / -1; }
+
+        .card-label {
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            margin-bottom: 15px;
+            display: block;
+        }
+
+        iframe {
+            width: 100%;
+            border: none;
+            border-radius: 8px;
+        }
+        
+        .map-card iframe { height: 750px; }
+        iframe[src="tabla_competencias.html"] { height: 760px; }
+        iframe[src="ranking_tareas_aprendizaje.html"] { height: 500px; }
+
+        .info-block {
+            background: #fff;
+            border-left: 5px solid var(--accent-color);
+            padding: 20px;
+            margin-bottom: 30px;
+            border-radius: 4px;
+            line-height: 1.6;
+        }
+
+        .algorithm-container {
+            font-family: "Courier New", Courier, monospace;
+            border-top: 2px solid #000;
+            border-bottom: 2px solid #000;
+            padding: 10px 0;
+            margin: 20px auto;
+            max-width: 800px;
+            line-height: 1.2;
+            color: #000;
+            background-color: #fff;
+        }
+        .alg-header {
+            font-weight: bold;
+            border-bottom: 1px solid #000;
+            padding-bottom: 5px;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+        }
+        .alg-line {
+            display: block;
+            white-space: pre;
+            padding-left: 20px;
+        }
+        .alg-indent-1 {padding-left: 40px; }
+        .alg-indent-2 {padding-left: 60px; }
+        .alg-comment {font-style: italic; color: #555; }
+        .alg-keyword {font-weight: bold; }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            main.content { margin-left: 0; padding: 20px; }
+            nav.sidebar { position: relative; width: 100%; height: auto; }
+            body { flex-direction: column; }
+            .dashboard-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+
+<nav class="sidebar">
+    <div class="sidebar-header">Analítica Aprendizaje</div>
+    <div class="sidebar-menu">
+        <a href="#top" class="menu-item active">Alcance Estudio</a>
+        <a href="#tabla" class="menu-item">Inferencias de competencias</a>
+        <a href="#secuencias" class="menu-item">Ejemplo de secuencias</a>
+        <a href="#vectorial" class="menu-item">Análisis vectorial</a>
+        <a href="#mapa3d" class="menu-item">Mapa 3D</a>
+        <a href="#ranking" class="menu-item">Ranking</a>
+        <a href="#sintesis" class="menu-item">Síntesis</a>
+        <a href="#conclusiones" class="menu-item">Conclusiones</a>
+        <a href="#bibliografia" class="menu-item">Bibliografía</a>
+    </div>
+</nav>
+
+    <main class="content">
+        <header style="margin-bottom: 32px;">
+            <h1 style="font-size: 32px; margin: 0;">Análisis de tendencias de evaluación del proceso de aprendizaje</h1>
+            <p style="color: var(--text-secondary);">Evaluación en tiempo real y competencias inferidas de abstracts académicos.</p>
+            <p style="color: var(--text-secondary);">Rob de la Vega VRA - SPT / Duoc UC.</p>
+        </header>
+
+        <!-- Sección Resumen del estudio -->
+        <section class="info-block" id="top">
+            <h3 style="font-size: 20px; margin: 0;">ALCANCE DE ESTUDIO DE TENDENCIAS DE EVALUACION DE APRENDIZAJE</h3>
+
+            <p>Este reporte investiga la madurez pedagógica de las innovaciones tecnológicas en Educación Superior mediante Procesamiento de Lenguaje Natural (NLP) y análisis vectorial. El estudio evalúa si la digitalización actual transforma el aprendizaje o si solo optimiza un enfoque basado en la enseñanza, basándose en la cuantificación de la tarea esencial del aprendizaje. Se identifican tres hallazgos críticos:</p>
+            <ul>
+            <li><strong>Inercia del control:</strong> Alta concentración de tecnologías (IA, Analítica) para un diagnóstico estático, evidenciando un vacío operativo en la fase de iteración y cierre de brecha.</li>
+            <li><strong>Desbalance de la trayectoria:</strong> Existe una limitación del monitoreo inicial, pero una ausencia sistémica de trazabilidad longitudinal que conecte el aula (sesión -- resultado de aprendizaje y el perfil de egreso profesional).</li>
+            <li><strong>Simulación de innovación:</strong> La proximidad semántica revela que muchas herramientas de vanguardia mantienen un ADN basado en la enseñanza, sin desplazar la acción hacia el proceso de aprendizaje de alineamiento, inferencia y metacognición.</li>
+            </ul>
+            <p>En conclusión, la frontera de la Educación Superior no es la adopción de más tecnología, sino el alineamiento del algoritmo con la etapa de operación y transferencia para que el estudiante sea el centro efectivo de su formación.</p>
+            </section>
+
+            <!-- Sección Inferencia de competencia -->
+            <section class="info-block" id="tabla">
+            <strong></strong>
+            <h3 style="font-size: 20px; margin: 0;">INFERENCIAS DE COMPETENCIAS DESDE ABSTRACTS DE JOURNALS ACADÉMICOS</h3>
+
+            <p>La evolución de la tecnología en la Educación Superior ha planteado una interrogante fundamental: <strong>¿estamos ante una verdadera transformación del aprendizaje o simplemente ante una optimización digital de un modelo aun centrado en la enseñanza?</strong> Este reporte aborda dicha problemática mediante el uso del Procesamiento de Lenguaje Natural (NLP) y análisis vectorial, herramientas que permiten realizar una "matematización" de las tareas esenciales del aprendizaje. A través de la identificación de inferencias extraídas de abstracts científicos, el estudio desvela cómo la madurez pedagógica de la innovación actual se encuentra en una encrucijada entre el potencial técnico y la inercia de la estructura centrada en la enseñanza.</p>
+            <p>Los hallazgos de esta investigación señalan tres brechas críticas: una alta concentración de tecnologías para diagnósticos estáticos que no logran cerrar el ciclo de aprendizaje (inercia del control), una falta de trazabilidad que conecte el proceso de aula con el resultado de aprendizaje y el perfil de egreso (desbalance de la trayectoria) y una persistencia de ADN tradicional en herramientas de vanguardia (simulación de innovación).</p>
+            <p>En este contexto, se presenta la siguiente tabla de inferencia, centrada en el concepto de assessment en educación superior, para ilustrar cómo la proximidad semántica y el análisis de datos pueden orientar el alineamiento del algoritmo hacia una formación donde el estudiante sea el centro efectivo del aprendizaje. Se infiere desde abstracts teniendo en cuenta las siguientes dimensiones que componen una competencia: action, object, purpose, context y technology.</p>
+            </section>
+
+            <!-- Tabla de competencias y algoritmo -->
+            <div class="card full-width">
+            <span class="card-label">Base de datos de competencias</span>
+            <iframe src="tabla_competencias.html"></iframe>
+            <div class="caption">Tabla 1: Inferencias desde abstracts: Keywords "Assessment" en Educación Superior. La implementación técnica de este modelo se fundamenta en un motor de inferencia estructurado que traduce el lenguaje natural de los reportes científicos en unidades de información pedagógica discreta. El siguiente algoritmo detalla la lógica de segmentación empleada para descomponer los abstracts en las cinco dimensiones esenciales, asegurando que cada competencia identificada se mantenga en una taxonomía para su posterior análisis en el sistema.</div>
+
+            <div class="algorithm-container">
+            <div class="alg-header">Algoritmo 1: Inferencia de Dimensiones de competencia</div>
+            <span class="alg-line"><span class="alg-keyword">class</span> CompetencyInferer:</span>
+            <span class="alg-line alg-indent-1"><span class="alg-keyword">method</span> extract_dimensions(abstract_text):</span>
+            <span class="alg-line alg-indent-2"><span class="alg-comment"># Definir dimensiones del modelo pedagógico</span></span>
+            <span class="alg-line alg-indent-2">dimensions &larr; ["action", "object", "purpose", "context", "technology"]</span>
+            <span class="alg-line alg-indent-2"><span class="alg-comment"># Iniciar proceso de extracción NLP</span></span>
+            <span class="alg-line alg-indent-2"><span class="alg-keyword">for each</span> dim <span class="alg-keyword">in</span> dimensions:</span>
+            <span class="alg-line alg-indent-2" style="padding-left: 80px;">inference[dim] &larr; infer_from_text(abstract_text, dim)</span>
+            <span class="alg-line alg-indent-2"><span class="alg-keyword">return</span> inference</span>
+            <span class="alg-line"></span>
+            <span class="alg-line"><span class="alg-comment"># --- Ejemplo de Ejecución ---</span></span>
+            <span class="alg-line">abstract &larr; "Estudio sobre IA y retención en educación técnica..."</span>
+            <span class="alg-line">inferer &larr; CompetencyInferer()</span>
+            <span class="alg-line">resultado &larr; inferer.extract_dimensions(abstract)</span>
+            <span class="alg-line"><span class="alg-keyword">print</span> format_as_table(resultado)</span>
+            </div>
+            </div>
+
+            <!-- Sección Secuencias de enseñanza y aprendizaje --------- -->
+
+            <section class="info-block" id="secuencias">
+            <h3 style="font-size: 20px; margin: 0;">EJEMPLO DE SECUENCIAS DE ENSEÑANZA APRENDIZAJE</h3>
+
+            <p>Las siguientes secuencias constituyen el mapa genético (criterios de clasificación) que subyace en el estudio, permitiendo discernir si una tecnología se aplica para el Proceso de Enseñanza o para la transformación cognitiva del estudiante (Proceso de Aprendizaje). Al establecer esta distinción, el estudio deja de medir simples herramientas para evaluar intencionalidades. Este enfoque permite identificar brechas donde la innovación técnica no se traduce en una mejora real de la trayectoria formativa, facilitando una auditoría crítica sobre la profundidad de la transformación digital institucional.</p>
+            <p>En la práctica, estas secuencias operan como anclas semánticas para el análisis vectorial mediante Inteligencia Artificial (NLP). Cada registro del dataset es contrastado contra un "Vector de Referencia del Aprendizaje" para determinar su índice de proximidad con el cumplimiento de objetivos, logros de aprendizaje, o cumplimiento del perfil de egreso. Así, el sistema no solo valida la presencia de una plataforma, sino su capacidad real para generar procesos complejos como la metacognición o la inferencia, convirtiendo los flujos diseñados en la métrica de rigor para ponderar el éxito de cada intervención educativa.</p>
+            </section>
+
+            <!-- Imágenes paralelas -->
+            <div class="imagenes-paralelas">
+            <div class="imagen-item">
+                <img src="ProcesoEnsenanza.png" alt="Diagrama de Enseñanza">
+                <figcaption style="font-size: 0.9em; margin-top: 10px; color: #555; text-align: center;">
+                    <strong>Secuencia de enseñanza:</strong> Foco en la arquitectura docente, diseño curricular y gestión de condiciones para la transferencia de conocimiento.
+                </figcaption>
+            </div>
+            <div class="imagen-item">
+            <img src="ProcesoAprendizaje.png" alt="Diagrama de Aprendizaje">
+            <figcaption style="font-size: 0.9em; margin-top: 10px; color: #555; text-align: center;">
+            <strong>Secuencia de aprendizaje:</strong> Foco en la operatividad cognitiva del estudiante, evolución de su aprendizaje y alineamiento con resultados de aprendizaje y el perfil de egreso.
+            </figcaption>
+            </div>
+            </div>
+
+            <!-- Sección Geometría de la Información -->
+            <section class="info-block" id="vectorial">
+
+            <h3 style="font-size: 20px; margin: 0;">LAS COMPETENCIAS DE EVALUACIÓN INFERIDAS EN UN ESPACIO VECTORIAL</h3>
+            <p>Este estudio va más allá del análisis descriptivo tradicional mediante la aplicación de <strong>Geometría de la Información</strong> y <strong>Análisis de Desplazamiento Vectorial</strong>. En este modelo, cada registro de competencias inferidas desde abstracts (journals académicos) no es un punto estático, sino un <em>estado</em> con una dirección y fuerza específica ("empuje").</p>
+            <p>Se propone un enfoque basado en Geometría de la Información y Análisis de Desplazamiento Vectorial. La idea es tratar las competencias inferidas como un estado dentro de un espacio vectorial y medir no dónde está, sino hacia dónde empuja la fuerza de su acción.</p>
+
+            <p><strong>Transformación vectorial de agencialidad.</strong></p>
+
+            <p>En lugar de un clustering tradicional por similitud de palabras, se propone una proyección de contraste operacional: en vez de agrupar textos por palabras parecidas, esta técnica convierte cada acción educativa en un vector (una flecha en el espacio) y mide hacia dónde apunta esa flecha (si apunta a estar centrada en el estudiante o en la enseñanza) para evaluar su verdadera dirección pedagógica, independientemente de las palabras que use.</p>
+            <p>Embeddings condicionales: Transforma cada triada (action, object, purpose) en un vector <span style="font-style: italic;">v</span> ∈ ℝⁿ usando un modelo de lenguaje (como BERT o ADA) ajustado a los enfoques educativos que se estudian.</p>
+            <p>Definir ejes semánticos (Proyección de Gram-Schmidt): Definir dos vectores ortogonales <span style="font-style: italic;">ideales</span>: se crean dos direcciones de referencia perpendiculares entre sí (una que representa el "enfoque en la enseñanza" y otra relacionado con el "enfoque en el aprendizaje") para que cualquier acción educativa pueda ubicarse y medirse según su orientación relativa entre estos dos polos.</p>
+            <ul style="margin-top: 0; list-style-type: none; padding-left: 20px;">
+            <li><span style="font-weight: bold;">\(\vec{E}\)</span>: El vector "Enseñanza".</li>
+            <li><span style="font-weight: bold;">\(\vec{A}\)</span>: El vector "Aprendizaje".</li>
+            </ul>
+            <p>Cálculo del índice de operatividad (\(I_o\)): Para cada registro \(\vec{v}_i\) de inferencias se calcula su proyección escalar:</p>
+            <p style="text-align: center; font-size: 1.1rem; margin: 1rem 0;">
+                $$I_o = \frac{v_i \cdot \vec{A}}{\|v_i\| \cdot \|\vec{A}\|}$$
+            </p>
+            <p>Esto da un valor entre -1 y 1 que indica qué tan aprendizaje-operativo es el registro, independientemente de que use tecnología avanzada. La Lógica: Si una investigación dice usar "Machine Learning" (tecnología) para mejorar el rendimiento (propósito) mediante evaluación (acción), el vector resultante muestra una tensión. Visualización de flujo: Los puntos no solo están ahí. Tienen una flecha que indica su potencialidad.</p>
+            <p><strong>Propuesta de visualización: El embudo de trazabilidad:</strong></p>
+            <p>Se propone un grafo de transferencia de momento:</p>
+            <ul style="margin-top: 0;">
+            <li><span style="font-weight: bold;">Nodos:</span> La secuencia del proceso.</li>
+            <li><span style="font-weight: bold;">Aristas (Flujos):</span> Basado en las inferencias, se trazan líneas que muestran cómo fluye la intención de la investigación.</li>
+            </ul>
+            <p><span style="font-weight: bold;">¿Por qué esto nos ayuda?</span> Porque matemáticamente permite distinguir entre:</p>
+            <ul style="margin-top: 0;">
+            <li><span style="font-weight: bold;">Innovación Inercial:</span> Mucha tecnología, pero dirección vectorial hacia la enseñanza.</li>
+            <li><span style="font-weight: bold;">Innovación Disruptiva:</span> Quizás poca tecnología (estadística simple), pero con una dirección vectorial clara hacia aprendizaje: objetivos resultados de aprendizaje o perfil de egreso.</li>
+            </ul>
+            <div style="margin-left: 20px; border-left: 3px solid #e67e22; padding-left: 15px; margin-top: 15px;">
+            <p><strong>2. Análisis de flujo de tensores (Vector Fields):</strong></p>
+            <p>Se utiliza <strong>Visualización de Flujo (Streamline Plot)</strong>. Cada investigación posee una <em>potencialidad</em> representada por un vector: </p>
+            <ul>
+            <li><strong>Innovación enseñanza:</strong> Alta magnitud tecnológica pero dirección vectorial hacia la enseñanza.</li>
+            <li><strong>Innovación aprendizaje:</strong> Dirección clara hacia la iteración y logrando un impacto real en el aprendizaje.</li>
+            </ul>
+            </div>
+            <p style="margin-top: 15px;"><strong>El embudo de trazabilidad:</strong> Este modelo permite visualizar gráficamente dónde se "corta" el flujo de la innovación de aprendizaje. Matemáticamente, evidencia cómo la corriente pedagógica suele estancarse en la medición de progreso, mostrando el límite de innovación de enseñanza y aprendizaje, lo que confirma la brecha entre la técnica y la operación sistémica.</p>
+            </section>
+
+
+
+            <!-- Mapa de innovación 3D (análisis_vectorial) --------------  -------- -->
+
+            <section class="info-block" id="mapa3d">
+            <h3 style="font-size: 20px; margin: 20px 0 0 0;">VISUALIZAR LAS TENDENCIAS DE EVALUACION</h3>
+
+            <p>El análisis de la trayectoria de innovación mediante un vector permite visualizar el índice de operatividad \(I_o\) donde el equilibrio óptimo se sitúa en la línea de alineamiento pedagógico (\(y = 0)\). En este punto, la tecnología y el propósito educativo convergen en una armonía funcional, permitiendo que las herramientas digitales actúe como habilitador natural del proceso de enseñanza. Cualquier desplazamiento hacia el extremo se interpreta como una desviación: hacia un lado, la innovación instrumental, donde la sofisticación técnica supera la utilidad pedagógica real. Hacia el otro, la zona tradicional, donde el proceso carece del impulso transformador que las nuevas metodologías pueden ofrecer.</p>
+            <p>Este hallazgo no señala una falla, sino una oportunidad de sintonía fina para la Educación Superior. Al identificar que herramientas de vanguardia, como la IA o el análisis de datos, se encuentran actualmente en una etapa de "ajuste instrumental", el estudio traza la ruta hacia el cuadrante de transformación real. El objetivo es desplazar la acción desde el simple diagnóstico estático hacia un modelo de acompañamiento longitudinal. Así, al centrar el diseño de los algoritmos en el cierre efectivo de brecha y en la metacognición del estudiante, se logra que la innovación no sea un fin en sí mismo, sino el motor que garantiza un aprendizaje profundo, conectado y plenamente alineado con el perfil de egreso profesional.</p>
+
+            <div class="card full-width map-card">
+            <span class="card-label">Mapa de innovación 3D</span>
+            <iframe src="analisis_vectorial.html"></iframe>        
+            </div>
+            </section>
+
+
+            <!-- Sección Agrupando el aprendizaje ----------  -->
+
+            <section class="info-block" >
+            <h3 style="font-size: 20px; margin: 0;">AGRUPAR APRENDIZAJE SOBRE EVALUACION</h3>
+
+            <p>El Mapa de innovación educativa 3D es fundamental porque añade una capa de profundidad necesaria para validar este avance: la multi-dimensionalidad. Mientras el análisis vectorial nos hablaba de equilibrio y dirección, el mapa 3D permite visualizar cómo los distintos proyectos y tecnologías se agrupan en "clusters", ofreciendo una visión más rica de la realidad educativa.</p>
+            <p>Este mapa refuerza la tendencia trazada:</p>
+            <p>1. Visualización del "alto impacto". El mapa permite identificar claramente el proyecto que ha logrado romper la inercia y se sitúan en la zona de alto impacto. Estos no son solo puntos aislados, sino evidencias de que es posible alinear la tecnología con una transformación pedagógica profunda. Ver estos datos en tres ejes nos permite entender que el éxito no depende solo de la tecnología, sino de su combinación con una acción clara y un propósito definido en el contexto adecuado.</p>
+            <p>2. De la dispersión a la cohesión. Al observar el mapa, podemos notar cómo ciertos grupos de innovaciones (como el uso de analítica predictiva o lenguaje natural) comienzan a agruparse. Esta formación de "clusters" sugiere que la comunidad educativa está encontrando un estándar de éxito. Ya no es un esfuerzo individual y disperso, sino una tendencia colectiva hacia un modelo de aprendizaje basado en la evidencia, lo que facilita la replicabilidad de esta buena práctica.</p>
+            <p>3. El Valor de la proximidad semántica en 3D. El mapa visualiza qué tan cerca están las herramientas actuales de un resultado de aprendizaje deseado. Si los puntos se mueven hacia el cuadrante superior, significa que la "distancia" entre la intención pedagógica y la ejecución tecnológica se está acortando. Es la representación visual de la sintonía fina de la que hablábamos: una trayectoria que deja de ser meramente instrumental para volverse estratégica y centrada en el estudiante. En definitiva, si el análisis vectorial es nuestra brújula para mantener el rumbo en el equilibrio (\(y = 0)\), el Mapa 3D es como un radar: muestra dónde están los casos de éxito, qué tan lejos se está de la transformación real y, sobre todo, confirma que el avance hacia una educación más operativa y conectada es una realidad tangible y medible.</p>
+            <!-- Mapa innovación 3D (mapa_innovacion_3d) -->
+            <div class="card full-width map-card">
+            <span class="card-label">Mapa de innovación 3D</span>
+            <iframe src="mapa_innovacion_3d.html"></iframe>
+            </div>
+            </section>
+
+
+            <!-- Dashboard Grid final ------------------------------- -->
+
+            <div class="card full-width map-card" id="ranking">
+            <h3 style="font-size: 20px; margin: 0; grid-column: 1 / -1;">OBTENIENDO APRENDIZAJES</h3>
+
+
+            <p><strong>El ranking evidencia</strong> un claro predominio de competencias orientadas al diagnóstico y análisis del aprendizaje por sobre aquellas vinculadas a la intervención pedagógica. Las tareas mejor posicionadas —como diagnosticar el estado inicial y analizar el desempeño longitudinal— reflejan una lógica evaluativa centrada en la medición y caracterización del aprendizaje. Esto sugiere que el sistema de evaluación prioriza la generación de información más que su uso transformador en el proceso formativo.</p>
+
+            <p><strong>En segundo lugar,</strong> se observa una presencia intermedia de competencias relacionadas con la articulación curricular, particularmente en la integración del aprendizaje dentro de la trayectoria formativa. Sin embargo, su posición en el ranking indica que esta dimensión no constituye el eje dominante. Esto revela una tensión entre evaluar el aprendizaje como un proceso aislado y comprenderlo como parte de un sistema formativo más amplio, donde la evaluación debiera cumplir un rol estructurante.</p>
+
+            <p><strong>Finalmente,</strong> las competencias asociadas al cierre del ciclo de aprendizaje (como la retroalimentación, la mejora iterativa, la corrección del error y la transferencia a nuevos contextos) presentan una baja frecuencia relativa. Esta distribución sugiere una debilidad en los procesos de uso pedagógico de la evaluación, especialmente en su capacidad para promover ajustes, profundización y transferencia del aprendizaje. En conjunto, el ranking describe un modelo evaluativo robusto en diagnóstico, pero limitado en su función formativa y de mejora continua.</p>
+
+
+            <div class="card full-width" id="sintesis">
+            <span class="card-label">Ranking de tareas de aprendizaje</span>
+            <iframe src="ranking_tareas_aprendizaje.html"></iframe>
+            </div>
+
+            <!-- Aprendizaje esencial ------------------------------- -->
+            <br>
+            <h3 style="font-size: 20px; margin: 0; grid-column: 1 / -1;">CONCEPTO SINTESIS EVALUACION DEL PROCESO DE APRENDIZAJE</h3>
+
+            <p><strong>La inferencia como "sentido".</strong> En los datos, se observa que términos como natural language, predictive analytics o VR aparecen con alta frecuencia. Sin embargo, el objeto revela que estas tecnologías no operan solas. En la sesión, el estudiante realiza una inferencia del sentido. Es decir, intenta entender para qué se usa esa tecnología. Si la tecnología (el "object" o "technology" de tu tabla) no se traduce en un propósito claro, la inferencia falla y el vector se desvía hacia la "innovación instrumental".</p>
+
+            <p><strong>El alignment como "propuesta".</strong> La tabla de competencias muestra una estructura clara: "action + object + purpose". Esto es lo propuesto. El esquema muestra que el "alignment" es el esfuerzo del estudiante por sincronizar su respuesta con esa estructura técnica. La tendencia en los abstracts sugiere que cuando el "alignment" es puramente procedimental (por ex. "usar un software"), el logro de aprendizaje es superficial. La verdadera calibración ocurre cuando el estudiante alinea su acción con el propósito profundo del estudio.</p>
+            
+            <p><strong>La calibración y el índice de operatividad \(I_o\).</strong> Aquí es donde el análisis vectorial y el esquema convergen. En el mapa 3D, se vió clusters de "alto impacto". Aquí se representa como una calibración exitosa. La tendencia indica que el éxito (el logro de aprendizaje) depende de que el Feedback ocurra en el cierre de la sesión para corregir el ángulo del vector \(\vec{v}_{estudiante}\). Sin ese feedback, el sistema tiende por defecto a la "inercia del control", donde se mide mucho pero se transforma poco.</p>
+
+            <div class="card full-width">
+            <div class="imagen-item"> 
+            <img src="AlignInf.png" alt="Diagrama de Enseñanza" style="width: 85%; height: auto;">
+            <figcaption style="font-size: 0.9em; margin-top: 10px; color: #555;">
+            <strong>Secuencia de aprendizaje:</strong> Este núcleo funciona como un vector dinámico en estado de corrección permanente. En el espacio de la sesión, el aprendizaje no se despliega como una línea recta e inmutable, sino como una trayectoria que ajusta su ángulo y magnitud en tiempo real. La relación vectorial se autocorrige mediante el feedback, el cual actúa como una fuerza externa que intercepta el avance del estudiante, validando su dirección o reorientándolo hacia el punto de equilibrio óptimo. Así, la operatividad pedagógica no reside en la acumulación de datos, sino en la capacidad del sistema para procesar esta retroalimentación y estabilizar el flujo hacia el logro efectivo del aprendizaje.
+            </figcaption>
+            </div>
+                
+            <p>El flujo hacia el logro. El esquema expresa la transición desde la matematización de tareas (extraída de los abstracts) hacia la operación en el aula. Lo importante no es el contenedor (la plataforma), sino la relación vectorial y el flujo de información entre los actores. Este objeto es el "modelo de despliegue" del estudio: toma la estructura rígida de la tabla de competencias y la pone en movimiento dentro del contexto dinámico de una sesión de aprendizaje, permitiendo que la calibración sea el punto donde la tecnología de los abstracts se convierte en resultado real.</p>
+            </div>
+
+
+            <section class="info-block" id="conclusiones">
+            <h3 style="font-size: 20px; margin: 0;">CONCLUSIONES</h3>
+            <p>A partir de la evidencia analizada en los 1631 registros de abstracts, el análisis vectorial del índice de operatividad y el mapeo de innovación en 3D, se presentan las siguientes cinco conclusiones finales que sintetizan el estado actual y la trayectoria de la evaluación en la Educación Superior:</p>
+
+            <p><strong>1. Transición de la medición de resultados a la ingeniería de procesos.</strong> La evidencia muestra un predominio de acciones como Monitor, Analyze y Predict sobre términos tradicionales de evaluación sumativa (grade, score). Este hallazgo confirma que el foco se ha desplazado desde la calificación final hacia una analítica de aprendizaje en tiempo real. El sistema ya no busca simplemente certificar un estado de conocimiento, sino intervenir en la trayectoria mediante una función de evaluación continua que optimiza el proceso mientras este ocurre.</p>
+
+            <p><strong>2. La personalización como eje de alto impacto pedagógico.</strong> El análisis de clustering revela que los niveles más altos de impacto (eje Z en el mapa 3D) están directamente vinculados a la tríada "model-predict-classify". La innovación más efectiva no es la que digitaliza contenidos, sino la que utiliza la inferencia de datos para adaptar la instrucción a las necesidades individuales. El éxito del estudiante depende de que el sistema sea capaz de "setear" condiciones de aprendizaje personalizadas, alejándose definitivamente de los enfoques estandarizados y unidireccionales.</p>
+
+            <p><strong>3. La Inteligencia artificial como habilitador de la operatividad \(I_o\).</strong> Existe una correlación directa entre la sofisticación tecnológica (Machine Learning, NLP, Deep Learning) y la capacidad de las instituciones para alcanzar el punto de equilibrio \(y = 0\). Mientras las tecnologías descriptivas tradicionales se limitan a reportar el pasado, la adopción de IA permite la "matematización de tareas" necesaria para generar alertas tempranas y diagnósticos preventivos. La IA ha dejado de ser una herramienta de soporte para convertirse en el motor que permite una evaluación operativa y funcional.</p>
+
+            <p><strong>4. Integración de la evaluación en el "flujo de trabajo" del estudiante.</strong> Las tendencias inferidas indican que la evaluación ha dejado de ser un evento discreto o aislado (como un examen final) para integrarse en el flujo de la sesión. El uso de datos multimodales e interacciones en tiempo real en entornos híbridos demuestra que la evaluación es ahora un vector que se autocorrige por feedback. Esta integración permite que la "calibración" del estudiante respecto a la propuesta docente ocurra de forma natural y constante, mejorando la precisión del logro de aprendizaje.</p>
+
+            <p><strong>5. Priorización de procesos cognitivos y afectivos sobre contenidos declarativos. </strong>Las competencias con mayor puntuación de innovación se centran en objetos abstractos como la carga cognitiva \(cognitive\ load\), el compromiso \(engagement\) y el pensamiento crítico. Esto sugiere que el núcleo de la evaluación contemporánea se ha desplazado del "qué sabe el estudiante" al "cómo aprende y qué siente mientras lo hace". Comprender la expereincia de aprendizaje y los vacíos de conocimiento durante la inferencia de sentido de la clase es hoy más crítico para el éxito académico que la mera retención de información.</p>
+            </section>
+
+
+       <section  class="info-block" id="bibliografia"> <h3 style="font-size: 20px; margin: 0;">BIBLIOGRAFÍA</h3> <ul> <li> Biggs, J., & Tang, C. (2011). <em>Teaching for Quality Learning at University</em> (4th ed.). Open University Press. <!-- Base de alineamiento (lo mantienes como marco pedagógico clásico) --> </li> <li> Sadler, D. R. (1989). Formative assessment and the design of instructional systems. <em>Instructional Science</em>, 18(2), 119–144. <!-- Evaluación como sistema de regulación. Nota: El título original incluye "the design of" --> </li> <li> Siemens, G. (2013). Learning analytics: The emergence of a discipline. <em>American Behavioral Scientist</em>, 57(10), 1380–1400. https://doi.org/10.1177/0002764213498851 <!-- Conecta con analítica y datos --> </li> <li> Mikolov, T., Chen, K., Corrado, G., & Dean, J. (2013). Efficient estimation of word representations in vector space. <em>arXiv preprint</em> arXiv:1301.3781. <!-- Word2Vec: base de representación vectorial --> </li> <li> Devlin, J., Chang, M.-W., Lee, K., & Toutanova, K. (2019). BERT: Pre-training of deep bidirectional transformers for language understanding. In <em>Proceedings of NAACL-HLT 2019</em> (pp. 4171–4186). https://doi.org/10.18653/v1/N19-1423 <!-- Base moderna de embeddings --> </li> <li> Blei, D. M. (2012). Probabilistic topic models. <em>Communications of the ACM</em>, 55(4), 77–84. https://doi.org/10.1145/2133806.2133826 <!-- Inferencia semántica desde texto --> </li> <li> Amari, S. (2016). <em>Information Geometry and Its Applications</em>. Springer. https://doi.org/10.1007/978-4-431-55978-8 <!-- CLAVE: geometría de la información --> </li> <li> Nielsen, F. (2020). An elementary introduction to information geometry. <em>Entropy</em>, 22(10), 1100. https://doi.org/10.3390/e22101100 <!-- Puente entre teoría y aplicación. Nota: Publicado en revista, no solo como preprint --> </li> <li> Gašević, D., Dawson, S., & Siemens, G. (2015). Let’s not forget: Learning analytics are about learning. <em>TechTrends</em>, 59(1), 64–71. https://doi.org/10.1007/s11528-014-0822-x <!-- Crítica directa al sesgo evaluativo. Nota: El título original incluye "Let’s not forget:" --> </li> </ul> </section>
+
+        </div>
+    </main>
+
+</body>
+</html>

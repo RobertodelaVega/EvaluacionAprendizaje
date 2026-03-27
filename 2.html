@@ -1,0 +1,53 @@
+<style>
+    .algorithm-container {
+        font-family: "Courier New", Courier, monospace;
+        border-top: 2px solid #000;
+        border-bottom: 2px solid #000;
+        padding: 10px 0;
+        margin: 20px auto;
+        max-width: 800px;
+        line-height: 1.2;
+        color: #000;
+        background-color: #fff;
+    }
+    .alg-header {
+        font-weight: bold;
+        border-bottom: 1px solid #000;
+        padding-bottom: 5px;
+        margin-bottom: 10px;
+        text-transform: uppercase;
+    }
+    .alg-line {
+        display: block;
+        white-space: pre;
+        padding-left: 20px;
+    }
+    .alg-indent-1 { padding-left: 40px; }
+    .alg-indent-2 { padding-left: 60px; }
+    .alg-comment { font-style: italic; color: #555; }
+    .alg-keyword { font-weight: bold; }
+</style>
+
+<div class="algorithm-container">
+    <div class="alg-header">Algoritmo 1: Inferencia de Dimensiones de Competencia</div>
+    
+    <span class="alg-line"><span class="alg-keyword">class</span> CompetencyInferer:</span>
+    <span class="alg-line alg-indent-1"><span class="alg-keyword">method</span> extract_dimensions(abstract_text):</span>
+    
+    <span class="alg-line alg-indent-2"><span class="alg-comment"># Definir dimensiones del modelo pedagógico</span></span>
+    <span class="alg-line alg-indent-2">dimensions &larr; ["action", "object", "purpose", "context", "technology"]</span>
+    
+    <span class="alg-line alg-indent-2"><span class="alg-comment"># Iniciar proceso de extracción NLP</span></span>
+    <span class="alg-line alg-indent-2"><span class="alg-keyword">for each</span> dim <span class="alg-keyword">in</span> dimensions:</span>
+    <span class="alg-line alg-indent-2" style="padding-left: 80px;">inference[dim] &larr; infer_from_text(abstract_text, dim)</span>
+    
+    <span class="alg-line alg-indent-2"><span class="alg-keyword">return</span> inference</span>
+
+    <span class="alg-line"></span>
+    <span class="alg-line"><span class="alg-comment"># --- Ejemplo de Ejecución ---</span></span>
+    <span class="alg-line">abstract &larr; "Estudio sobre IA y retención en educación técnica..."</span>
+    <span class="alg-line">inferer &larr; CompetencyInferer()</span>
+    <span class="alg-line">resultado &larr; inferer.extract_dimensions(abstract)</span>
+    
+    <span class="alg-line"><span class="alg-keyword">print</span> format_as_table(resultado)</span>
+</div>
